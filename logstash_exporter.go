@@ -1,15 +1,16 @@
 package main
 
 import (
-	"github.com/BonnierNews/logstash_exporter/collector"
-	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/common/log"
-	"github.com/prometheus/common/version"
-	"gopkg.in/alecthomas/kingpin.v2"
 	"net/http"
 	_ "net/http/pprof"
 	"sync"
 	"time"
+
+	"github.com/BonnierNews/logstash_exporter/collector"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/common/version"
+	log "github.com/sirupsen/logrus"
+	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 var (
@@ -106,7 +107,6 @@ func main() {
 		exporterBindAddress = kingpin.Flag("web.listen-address", "Address on which to expose metrics and web interface.").Default(":9198").String()
 	)
 
-	log.AddFlags(kingpin.CommandLine)
 	kingpin.Version(version.Print("logstash_exporter"))
 	kingpin.HelpFlag.Short('h')
 	kingpin.Parse()

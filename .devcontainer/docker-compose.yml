@@ -1,0 +1,32 @@
+version: "3.7"
+
+services:
+  vscode:
+    build:
+      context: .
+      args:
+      - username=vscode
+      - https_proxy=$https_proxy
+      - http_proxy=$http_proxy
+    volumes:
+      - ../:/workspace
+      # Docker
+      - ~/.docker:/home/$username/.docker:z
+      # Docker socket to access Docker server
+      - /var/run/docker.sock:/var/run/docker.sock
+      # SSH directory for Linux, OSX and WSL
+      - ~/.ssh:/home/$username/.ssh:z
+      # For Windows without WSL, a copy will be made
+      # from /tmp/.ssh to ~/.ssh to fix permissions
+      # - ~/.ssh:/tmp/.ssh:ro
+      # Git config
+      - ~/.gitconfig:/home/$username/.gitconfig:z
+    env_file:
+      - .env
+    cap_add:
+      # For debugging with dlv
+      - SYS_PTRACE
+    security_opt:
+      # For debugging with dlv
+      - seccomp:unconfined
+    command: /bin/sh -c "while sleep 1000; do :; done"

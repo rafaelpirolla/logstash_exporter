@@ -278,7 +278,10 @@ func TestPipelineNoQueueStats(t *testing.T) {
 	var response NodeStatsResponse
 
 	m := &MockHTTPHandler{ReturnJSON: noQueueJSON}
-	getMetrics(m, &response)
+	err := getMetrics(m, &response)
+	if err != nil {
+		t.Fail()
+	}
 
 	if response.Pipeline.Queue.Capacity.MaxUnreadEvents == 12 {
 		t.Fail()
@@ -289,7 +292,10 @@ func TestPipelineQueueStats(t *testing.T) {
 	var response NodeStatsResponse
 
 	m := &MockHTTPHandler{ReturnJSON: queueJSON}
-	getMetrics(m, &response)
+	err := getMetrics(m, &response)
+	if err != nil {
+		t.Fail()
+	}
 
 	if response.Pipeline.Queue.Capacity.MaxUnreadEvents != 12 {
 		t.Fail()
@@ -300,7 +306,10 @@ func TestPipelineDLQueueStats(t *testing.T) {
 	var response NodeStatsResponse
 
 	m := &MockHTTPHandler{ReturnJSON: dlQueueJSON}
-	getMetrics(m, &response)
+	err := getMetrics(m, &response)
+	if err != nil {
+		t.Fail()
+	}
 
 	if response.Pipeline.DeadLetterQueue.QueueSizeInBytes != 1337 {
 		t.Fail()

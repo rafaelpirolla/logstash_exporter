@@ -1,27 +1,24 @@
-GO              ?= GO15VENDOREXPERIMENT=1 go
-GOPATH          := $(firstword $(subst :, ,$(shell $(GO) env GOPATH)))
 PROMU           ?= $(GOPATH)/bin/promu
-GOLINTER        ?= $(GOPATH)/bin/gometalinter
-pkgs            = $(shell $(GO) list ./... | grep -v /vendor/)
+GOLINTER        ?= $(GOPATH)/bin/golangci-lint
+pkgs            = $(shell go list ./... | grep -v /vendor/)
 TARGET          ?= logstash_exporter
 
 PREFIX          ?= $(shell pwd)
 BIN_DIR         ?= $(shell pwd)
 
-all: clean format vet gometalinter build test
+all: clean format vet golangci-lint build test
 
 test:
 	@echo ">> running tests"
-	@$(GO) test -short $(pkgs)
+	@go test -short $(pkgs)
 
 format:
 	@echo ">> formatting code"
-	@$(GO) fmt $(pkgs)
+	@go fmt $(pkgs)
 
-gometalinter: $(GOLINTER)
+golangci-lint: $(GOLINTER)
 	@echo ">> linting code"
-	@$(GOLINTER) --install --update > /dev/null
-	@$(GOLINTER) --config=./.gometalinter.json ./...
+	@$(GOLINTER) run
 
 build: $(PROMU)
 	@echo ">> building binaries"
@@ -35,11 +32,11 @@ clean:
 $(GOPATH)/bin/promu promu:
 	@GOOS=$(shell uname -s | tr A-Z a-z) \
 		GOARCH=$(subst x86_64,amd64,$(patsubst i%86,386,$(shell uname -m))) \
-		$(GO) get -u github.com/prometheus/promu
+		go install -v github.com/prometheus/promu@latest
 
-$(GOPATH)/bin/gometalinter lint:
+$(GOPATH)/bin/golangci-lint lint:
 	@GOOS=$(shell uname -s | tr A-Z a-z) \
 		GOARCH=$(subst x86_64,amd64,$(patsubst i%86,386,$(shell uname -m))) \
-		$(GO) get -u github.com/alecthomas/gometalinter
+		go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.44.2
 
-.PHONY: all format vet build test promu clean $(GOPATH)/bin/promu $(GOPATH)/bin/gometalinter lint
+.PHONY: all format vet build test promu clean $(GOPATH)/bin/promu $(GOPATH)/bin/golangci-lint lint
